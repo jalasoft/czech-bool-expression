@@ -30,7 +30,7 @@
 
     <groupId>com.github.jalasoft</groupId>
     <artifactId>czech-bool-expression</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0</version>K
 
     <distributionManagement>
         <snapshotRepository>
