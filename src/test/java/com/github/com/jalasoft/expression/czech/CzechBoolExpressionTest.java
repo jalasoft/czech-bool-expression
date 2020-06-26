@@ -43,7 +43,7 @@ public class CzechBoolExpressionTest {
                 { "číslo1 je menší jak 3 a je validni " },
                 { "chyb je míň jak 3 nebo chyb je víc jak 5 a je včas" },
                 { "je včas nebo chyb je stejně jako 5" },
-                { "lidí je víc jak 78 a zároveň dětí je méně jak 5" }
+                { "lidí je víc jak 78 a zároveň dětí je méně jak 5" },
         };
     }
 
@@ -80,6 +80,10 @@ public class CzechBoolExpressionTest {
                 { "počet není roven 8", context().identifier("počet", 8), false},
                 { "chyb není míň jak 3 a je včas", context().identifier("chyb", 4).identifier("včas", true), true },
                 { "chyb není míň jak 3 a je včas", context().identifier("chyb", 2).identifier("včas", true), false },
+                { "tučňáků není víc jak 5", context().identifier("tučňáků", 5), true},
+                { "letadel není 34", context().identifier("letadel", 33), true},
+                {"podezřelých je více jak 15 a zároveň ignorantů je 7", context().identifier("podezřelých", 16).identifier("ignorantů", 7), true},
+                {"podezřelých je více jak 15 a zároveň ignorantů je 7", context().identifier("podezřelých", 16).identifier("ignorantů", 6), false}
         };
     }
 
