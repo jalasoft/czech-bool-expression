@@ -3,7 +3,7 @@ package com.github.jalasoft.expression.czech.lexan;
 public final class LexicalSymbol {
 
     public enum Type {
-        IDENT, NUMBER, JE, NENI, ROVNO, STEJNY, STEJNE, VETSI, VICE, VIC, MENSI, MENE, MIN, NEZ, JAK, JAKO, NEBO, A, EPSILON
+        IDENT, NUMBER, JE, NENI, ROVNO, ROVEN, ROVNA, STEJNY, STEJNE, VETSI, VICE, VIC, MENSI, MENE, MIN, NEZ, JAK, JAKO, NEBO, A, ZAROVEN, EPSILON
     }
 
     private final Type type;
@@ -24,5 +24,10 @@ public final class LexicalSymbol {
 
     public Type type() {
         return type;
+    }
+
+    @Override
+    public String toString() {
+        return "LexicalSymbol[" + type + ",value=" + value + "]";
     }
 }

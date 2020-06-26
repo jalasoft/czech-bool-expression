@@ -1,6 +1,8 @@
 package com.github.jalasoft.expression.czech;
 
+import com.github.jalasoft.expression.czech.parser.ConditionalOperation;
 import com.github.jalasoft.expression.czech.parser.ExpressionListener;
+import com.github.jalasoft.expression.czech.parser.RelationalOperation;
 
 import java.util.LinkedList;
 
@@ -15,18 +17,18 @@ final class BoolExpressionBuilder implements ExpressionListener {
     private boolean and;
 
     @Override
-    public void exp(String lOperandIdent, ExpressionListener.BinaryOperator operator, int rOperand) {
-        push(ctx -> operator.perform(ctx.number(lOperandIdent), rOperand));
+    public void exp(String lOperandIdent, RelationalOperation operation, int rOperand) {
+        push(ctx -> operation.evaluate(ctx.number(lOperandIdent), rOperand));
     }
 
     @Override
-    public void exp(String lOperandIdent, BinaryOperator operator, String rOperandIdent) {
-        push(ctx -> operator.perform(ctx.number(lOperandIdent), ctx.number(rOperandIdent)));
+    public void exp(String lOperandIdent, RelationalOperation operation, String rOperandIdent) {
+        push(ctx -> operation.evaluate(ctx.number(lOperandIdent), ctx.number(rOperandIdent)));
     }
 
     @Override
-    public void exp(String operandIdent, UnaryOperator operator) {
-        push(ctx -> operator.perform(ctx.bool(operandIdent)));
+    public void exp(String operandIdent, ConditionalOperation operation) {
+        push(ctx -> operation.evaluate(ctx.bool(operandIdent)));
     }
 
     private void push(BoolExpression exp) {

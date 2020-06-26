@@ -27,6 +27,8 @@ public class CzechBoolExpressionTest {
                 { "je včas" },
                 { "prom je rovno 4" },
                 { "proměnná je větší než 67 "},
+                { "proměnná je rovna 45" },
+                { "počet je roven 4" },
                 { "čísílko je větší nebo rovno -854" },
                 { "chyb je více než 78 " },
                 { "chyb je více nebo rovno 2" },
@@ -40,7 +42,8 @@ public class CzechBoolExpressionTest {
                 { "chyb je méně než 2 nebo není včas" },
                 { "číslo1 je menší jak 3 a je validni " },
                 { "chyb je míň jak 3 nebo chyb je víc jak 5 a je včas" },
-                { "je včas nebo chyb je stejně jako 5" }
+                { "je včas nebo chyb je stejně jako 5" },
+                { "lidí je víc jak 78 a zároveň dětí je méně jak 5" }
         };
     }
 
@@ -70,6 +73,13 @@ public class CzechBoolExpressionTest {
                 { "prom1 je rovno 8 nebo prom1 je větší než 89", context().identifier("prom1", 8), true },
                 { "prom1 je rovno 8 nebo prom1 je větší než 89", context().identifier("prom1", 90), true },
                 { "prom1 je rovno 8 nebo prom1 je větší než 89", context().identifier("prom1", 60), false },
+                { "lidí je víc jak 78 a zároveň dětí je méně jak 5", context().identifier("lidí", 79).identifier("dětí", 4), true },
+                { "lidí je víc jak 78 a zároveň dětí je méně jak 5", context().identifier("lidí", 78).identifier("dětí", 4), false },
+                { "lidí je víc jak 78 a zároveň dětí je míň jak 5", context().identifier("lidí", 79).identifier("dětí", 5), false },
+                { "počet je roven 8", context().identifier("počet", 8), true},
+                { "počet není roven 8", context().identifier("počet", 8), false},
+                { "chyb není míň jak 3 a je včas", context().identifier("chyb", 4).identifier("včas", true), true },
+                { "chyb není míň jak 3 a je včas", context().identifier("chyb", 2).identifier("včas", true), false },
         };
     }
 

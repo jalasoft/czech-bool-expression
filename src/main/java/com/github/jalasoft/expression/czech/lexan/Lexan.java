@@ -20,6 +20,8 @@ public final class Lexan {
         KEYWORDS.put("jak", new LexicalSymbol(JAK, "jak"));
         KEYWORDS.put("než", new LexicalSymbol(NEZ, "než"));
         KEYWORDS.put("rovno", new LexicalSymbol(ROVNO, "rovno"));
+        KEYWORDS.put("roven", new LexicalSymbol(ROVEN, "roven"));
+        KEYWORDS.put("rovna", new LexicalSymbol(ROVNA, "rovna"));
         KEYWORDS.put("stejný", new LexicalSymbol(STEJNY, "stejný"));
         KEYWORDS.put("stejně", new LexicalSymbol(STEJNE, "stejně"));
         KEYWORDS.put("jako", new LexicalSymbol(JAKO, "jako"));
@@ -31,6 +33,7 @@ public final class Lexan {
         KEYWORDS.put("míň", new LexicalSymbol(MIN, "menší"));
         KEYWORDS.put("nebo", new LexicalSymbol(NEBO, "nebo"));
         KEYWORDS.put("a", new LexicalSymbol(A, "a"));
+        KEYWORDS.put("zároveň", new LexicalSymbol(ZAROVEN, "zároveň"));
     }
 
     private static final LexicalSymbol EPSILON = new LexicalSymbol(LexicalSymbol.Type.EPSILON, null);

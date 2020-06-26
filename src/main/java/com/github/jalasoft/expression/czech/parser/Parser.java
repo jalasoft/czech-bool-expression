@@ -7,8 +7,6 @@ import com.github.jalasoft.expression.czech.lexan.LexanException;
 import com.github.jalasoft.expression.czech.lexan.LexicalSymbol;
 
 import static com.github.jalasoft.expression.czech.lexan.LexicalSymbol.Type.*;
-import static  com.github.jalasoft.expression.czech.parser.ExpressionListener.BinaryOperator.*;
-import static  com.github.jalasoft.expression.czech.parser.ExpressionListener.UnaryOperator.*;
 
 /**
  * 1    START        -> COND NEXT
@@ -27,34 +25,41 @@ import static  com.github.jalasoft.expression.czech.parser.ExpressionListener.Un
  * 14   OP2          -> méně OP2_REST
  * 15   OP2          -> míň OP2_REST
  * 16   OP2          -> rovno
- * 17   OP2          -> stejný jako
- * 18   OP2          -> stejné jako
- * 19   OP2_REST     -> než
- * 20   OP2_REST     -> jak
- * 21   OP2_REST     -> nebo OR_EQUAL
- * 22   OR_EQUAL       -> rovno OP2_REST2
- * 23   OR_EQUAL       -> stejné OP2_REST2
- * 24   OR_EQUAL       -> stejný OP2_REST2
- * 25   OP2_REST2    -> e
- * 26   OP2_REST2    -> jak
- * 27   OP2_REST2    -> jako
- * 28   ROPERAND     -> number
- * 29   ROPERAND     -> ident
- * 30   NEXT         -> e
- * 31   NEXT         -> a COND NEXT
- * 32   NEXT         -> nebo COND NEXT
+ * 17   OP2          -> roven
+ * 18   OP2          -> rovna
+ * 19   OP2          -> stejný jako
+ * 20   OP2          -> stejné jako
+ * 21   OP2_REST     -> než
+ * 22   OP2_REST     -> jak
+ * 23   OP2_REST     -> nebo OR_EQUAL
+ * 24   OR_EQUAL     -> rovno OP2_REST2
+ * 25   OR_EQUAL     -> stejné OP2_REST2
+ * 26   OR_EQUAL     -> stejný OP2_REST2
+ * 27   OP2_REST2    -> e
+ * 28   OP2_REST2    -> jak
+ * 29   OP2_REST2    -> jako
+ * 30   ROPERAND     -> number
+ * 31   ROPERAND     -> ident
+ * 32   NEXT         -> e
+ * 33   NEXT         -> AND COND NEXT
+ * 34  AND           -> a AND_REST
+ * 35  AND_REST      -> e
+ * 36  AND_REST      -> zároveň
+ * 37  NEXT         -> nebo COND NEXT
  *
  *  FIRST(START) = FIRST(COND) = { je, neni, ident }
  *  FIRST(COND) = FIRST(UNARY) ∪ FIRST(BINARY) = { je, neni, ident }
  *  FIRST(UNARY) = { je, neni }
  *  FIRST(BINARY) = { ident }
  *  FIRST(OP) = { je, neni }
- *  FIRST(OP2) = { e, vic, vice, vetsi, vetsi, mensi, mene, min, rovno stejny, stejne }
+ *  FIRST(OP2) = { e, vic, vice, vetsi, vetsi, mensi, mene, min, rovno, roven, rovna, stejny, stejne }
  *  FIRST(OP2_REST) = { nez, jak, nebo }
  *  FIRST(OP2_OR) = { rovno, stejne, stejny }
  *  FIRST(OP2_REST2) = { e, jak, jako }
  *  FIRST(ROPERAND) = { number, ident }
  *  FIRST(NEXT) = { e, a, nebo }
+ *  FIRST(AND) = { a }
+ *  FIRST(AND_REST) = { e, zaroven }
  *
  *  FOLLOW(OP2) = FOLLOW(OP) = { number, ident }
  *  FOLLOW(OP) = FIRST(ROPERAND) = { number, ident }
@@ -62,20 +67,22 @@ import static  com.github.jalasoft.expression.czech.parser.ExpressionListener.Un
  *  FOLLOW(OP2_OR) = FOLLOW(OP2_REST) = { number, ident }
  *  FOLLOW(OP2_REST) = FOLLOW(OP2) = { number, ident }
  *  FOLLOW(NEXT) = FOLLOW(S) = { e }
+ *  FOLLOW(AND_REST) = FOLLOW(AND) = FIRST(COND) = { je, neni, ident }
  *
- *
- *              ident   number  je  není    neníq   víc     více    větší   menší   méně    míň     rovno   stejný  stejné  než     jak     nebo    jako    a   e
+ *              ident   number  je  není    neníq   víc     více    větší   menší   méně    míň     rovno   roven   rovna   stejný  stejné  než     jak     nebo    jako    a   e       zaroven
  *  START         1             1    1
  *  COND          3             2    2
  *  UNARY_COND                  4    5
  *  BINARY_COND   6
  *  OP                          7    8
- *  OP2           9       9                         10       11       12     13      14     15       16      17       18
- *  OP2_REST                                                                                                                 19      20       21
- *  OR_EQUAL                                                                                          22      24       23
- *  OP2_REST2     25      25                                                                                                         26               27
- *  ROPERAND      29      28
- *  NEXT                                                                                                                                       32           31    30
+ *  OP2           9       9                         10       11       12     13      14     15       16       17      18      19      20
+ *  OP2_REST                                                                                                                                21       22       23
+ *  OR_EQUAL                                                                                          24                      26      25
+ *  OP2_REST2     27      27                                                                          24                                             28              29
+ *  ROPERAND      31      30
+ *  NEXT                                                                                                                                                      37            33    32
+ *  AND                                                                                                                                                                     34
+ *  AND_REST      35            35  35                                                                                                                                                      36
  */
 public final class Parser {
 
@@ -150,14 +157,14 @@ public final class Parser {
             case JE:
                 readNext();
                 var ident1 = identValue();
-                listener.exp(ident1, IDENTITY);
+                listener.exp(ident1, ConditionalOperation.identity());
                 readNext();
                 break;
 
             case NENI:
                 readNext();
                 var ident2 = identValue();
-                listener.exp(ident2, NEGATION);
+                listener.exp(ident2, ConditionalOperation.identity().not());
                 readNext();
                 break;
 
@@ -170,24 +177,28 @@ public final class Parser {
                case IDENT:
                    var ident = identValue();
                    readNext();
-                   var operator = op();
+                   var operation = op();
                    var symbol = roperand();
 
                    if (symbol.is(NUMBER)) {
-                       listener.exp(ident, operator, (int) symbol.value());
+                       listener.exp(ident, operation, (int) symbol.value());
                    } else if (symbol.is(IDENT)) {
-                       listener.exp(ident, operator, (String) symbol.value());
+                       listener.exp(ident, operation, (String) symbol.value());
                    } else {
                        throw new ParserException(symbol);
                    }
            }
     }
 
-    private ExpressionListener.BinaryOperator op() throws ExpressionException {
+    private RelationalOperation op() throws ExpressionException {
         switch (nextSymbol.type()) {
             case JE:
                 readNext();
                 return op2();
+
+            case NENI:
+                readNext();
+                return op2().not();
 
             default: throw new ParserException(nextSymbol);
         }
@@ -205,36 +216,44 @@ public final class Parser {
         }
     }
 
-    private ExpressionListener.BinaryOperator op2() throws ExpressionException {
+    private RelationalOperation op2() throws ExpressionException {
         switch (nextSymbol.type()) {
             case IDENT:
             case NUMBER:
-                return ExpressionListener.BinaryOperator.EQUAL;
+                return RelationalOperation.equal();
 
             case VIC:
             case VICE:
             case VETSI:
                 readNext();
-                var orEqual1 = op2_rest();
-                return orEqual1 ? GREATER_OR_EQUAL : GREATER;
+                var greater = RelationalOperation.greater();
+                if (op2_rest()) {
+                    greater = greater.or(RelationalOperation.equal());
+                }
+                return greater;
 
             case MENSI:
             case MENE:
             case MIN:
                 readNext();
-                var orEqual2 = op2_rest();
-                return orEqual2 ? LESS_OR_EQUAL : LESS;
+                var less = RelationalOperation.less();
+                if(op2_rest()) {
+                    less = less.or(RelationalOperation.equal());
+                }
+                return less;
 
             case ROVNO:
+            case ROVEN:
+            case ROVNA:
                 readNext();
-                return EQUAL;
+                return RelationalOperation.equal();
 
             case STEJNY:
             case STEJNE:
                 readNext();
                 check(JAKO);
                 readNext();
-                return EQUAL;
+                return RelationalOperation.equal();
 
             default: throw new ParserException(nextSymbol);
         }
@@ -295,12 +314,38 @@ public final class Parser {
 
             case A:
                 listener.and();
-                readNext();
+                and();
                 cond();
                 next();
                 break;
 
             case EPSILON:
+                break;
+
+            default: throw new ParserException(nextSymbol);
+        }
+    }
+
+    private void and() throws ExpressionException {
+        switch (nextSymbol.type()) {
+            case A:
+                readNext();
+                andRest();
+                break;
+
+            default: throw new ParserException(nextSymbol);
+        }
+    }
+
+    private void andRest() throws ExpressionException {
+        switch (nextSymbol.type()) {
+            case IDENT:
+            case JE:
+            case NENI:
+                break;
+
+            case ZAROVEN:
+                readNext();
                 break;
 
             default: throw new ParserException(nextSymbol);
